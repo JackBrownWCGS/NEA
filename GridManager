@@ -31,4 +31,14 @@ public class GridManager : MonoBehaviour
     {
         GameObject g = new GameObject("x: " + x + "y: " + y);
         g.transform.position = new Vector3(x - (horiz - 0.5f), y - (vert - 0.5f));
+        var s = g.AddComponent<SpriteRenderer>();
+        s.sprite = sprite;
+        if (value == 0)
+        {
+            s.color = new Color(255, 255, 255);
+        }
+        if (value == 1)
+        {
+            s.color = new Color(0, 0, 0);
+        }
     }
