@@ -7,6 +7,7 @@ public class GridManager : MonoBehaviour
 {
     public Sprite sprite;
     public int[,] Grid;
+    public int cellSize = 1;
     int vert, horiz, cols, rows;
 
     // Start is called before the first frame update
@@ -16,7 +17,39 @@ public class GridManager : MonoBehaviour
         horiz = vert * Screen.width / Screen.height;
         cols = 20;
         rows = 20;
-        Grid = new int[cols, rows];
+        Grid = new int[cols, rows * 2];
+        
+        // -Temporary- Remove comment prefix on the one you want to use
+        // Randomise();
+        // Generate();
+    }
+
+    // Gets position of mouse when mouse clicks, used to see what is being clicked on
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Manual(UtilsClass.GetMouseWorldPosition());
+        }
+    }
+
+    // Generates a blank board, for the manual placing of cells
+    private void Generate()
+    {
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                Grid[i, j] = 0;
+                SpawnTile(i, j, Grid[i, j]);
+            }
+        }
+    }
+
+    // Generates a random but symmetrical board for players to use
+    private void Randomise()
+    {
+        rows = rows / 2;
         for (int i = 0; i < cols; i++)
         {
             for (int j = 0; j < rows; j++)
@@ -25,7 +58,46 @@ public class GridManager : MonoBehaviour
                 SpawnTile(i, j, Grid[i, j]);
             }
         }
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                Grid[i, j + rows] = Grid[i, rows - j];
+                SpawnTile(i, j + rows, Grid[i, j + rows]);
+            }
+        }
     }
+
+    // Allows for the player to manually add 'live' cells to the board
+    private void Manual(Vector3 worldPosition)
+    {
+        int x, y;
+        GetXY(worldPosition, out x, out y);
+        SetValue(x, y);
+    }
+
+    // Gets the Position of the mouse in relation to the grid
+    private void GetXY(Vector3 worldPosition, out int x, out int y)
+    {
+        x = Mathf.FloorToInt(worldPosition.x + horiz);
+        y = Mathf.FloorToInt(worldPosition.y + vert);
+    }
+
+    // Used in the manual placement of the cells on the board
+    private void SetValue(int x, int y)
+    {
+        if (Grid[x, y] == 1)
+        {
+            Grid[x, y] = 0;
+        }
+        else
+        { 
+            Grid[x, y] = 1;
+        }
+        SpawnTile(x, y, Grid[x, y]);
+
+    }
+
     //Spawns in the tiles for the visible grid.
     private void SpawnTile(int x, int y, int value)
     {
@@ -42,3 +114,4 @@ public class GridManager : MonoBehaviour
             s.color = new Color(0, 0, 0);
         }
     }
+}
