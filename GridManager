@@ -9,6 +9,7 @@ public class GridManager : MonoBehaviour
     public int[,] Grid;
     public int cellSize = 1;
     int vert, horiz, cols, rows;
+    int flag = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +38,7 @@ public class GridManager : MonoBehaviour
     public void ManBtn()
     {
         Generate();
+        flag = 1;
     }
     
     // Generates a blank board, for the manual placing of cells
@@ -102,16 +104,18 @@ public class GridManager : MonoBehaviour
     // Used in the manual placement of the cells on the board
     private void SetValue(int x, int y)
     {
-        if (Grid[x, y] == 1)
+        if(flag == 1)
         {
-            Grid[x, y] = 0;
+            if (Grid[x, y] == 1)
+            {
+                Grid[x, y] = 0;
+            }
+            else
+            { 
+                Grid[x, y] = 1;
+            }
+            SpawnTile(x, y, Grid[x, y]);
         }
-        else
-        { 
-            Grid[x, y] = 1;
-        }
-        SpawnTile(x, y, Grid[x, y]);
-
     }
 
     //Spawns in the tiles for the visible grid.
