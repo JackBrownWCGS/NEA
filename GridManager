@@ -18,8 +18,6 @@ public class GridManager : MonoBehaviour
         cols = 20;
         rows = 20;
         Grid = new int[cols, rows * 2];
-        Randomise();
-        //Generate();
     }
 
     // Gets position of mouse when mouse clicks, used to see what is being clicked on
@@ -31,6 +29,16 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void RndBtn()
+    {
+        Randomise();
+    }
+
+    public void ManBtn()
+    {
+        Generate();
+    }
+    
     // Generates a blank board, for the manual placing of cells
     private void Generate()
     {
