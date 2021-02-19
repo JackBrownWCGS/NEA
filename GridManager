@@ -6,10 +6,11 @@ using CodeMonkey.Utils;
 public class GridManager : MonoBehaviour
 {
     public Sprite sprite;
-    public int[,] Grid;
-    public int cellSize = 1;
-    int vert, horiz, cols, rows;
-    int flag = 0;
+    private int[,] Grid;
+    private int cellSize = 1;
+    Private int vert, horiz, cols, rows;
+    private int flag = 0;
+    private int cellcount = 50;
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +40,24 @@ public class GridManager : MonoBehaviour
     {
         Generate();
         flag = 1;
+    }
+    
+    public void CellCounter(int val)
+    {
+        switch (val)
+        {
+            case 0:
+                cellcount = 50;
+                break;
+            case 1:
+                cellcount = 75;
+                break;
+            case 2:
+                cellcount = 100;
+                break;
+        }
+
+        Debug.Log("cellcount = " + cellcount);
     }
     
     // Generates a blank board, for the manual placing of cells
