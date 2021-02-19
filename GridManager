@@ -18,10 +18,8 @@ public class GridManager : MonoBehaviour
         cols = 20;
         rows = 20;
         Grid = new int[cols, rows * 2];
-        
-        // -Temporary- Remove comment prefix on the one you want to use
-        // Randomise();
-        // Generate();
+        Randomise();
+        //Generate();
     }
 
     // Gets position of mouse when mouse clicks, used to see what is being clicked on
@@ -73,7 +71,17 @@ public class GridManager : MonoBehaviour
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
-        SetValue(x, y);
+        if (x >= 0 && x <= 19 && y <= 19 && y >= 0)
+        { 
+            SetValue(x, y); 
+        }
+        else
+        {
+            string xs = x.ToString();
+            string ys = y.ToString();
+            Debug.Log("x = " + xs);
+            Debug.Log("y = " + ys);
+        }
     }
 
     // Gets the Position of the mouse in relation to the grid
@@ -114,4 +122,11 @@ public class GridManager : MonoBehaviour
             s.color = new Color(0, 0, 0);
         }
     }
+
+    public void NextIteration()
+    {
+        Debug.Log("test");
+    }
+
+
 }
