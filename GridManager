@@ -2,15 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using CodeMonkey.Utils;
+using System;
 
 public class GridManager : MonoBehaviour
 {
     public Sprite sprite;
     private int[,] Grid;
+    private int[,] Grid2;
     private int cellSize = 1;
-    Private int vert, horiz, cols, rows;
+    private int vert, horiz, cols, rows;
     private int flag = 0;
     private int cellcount = 50;
+    public int neighbours = 0;
+
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +24,7 @@ public class GridManager : MonoBehaviour
         cols = 20;
         rows = 20;
         Grid = new int[cols, rows * 2];
+        Grid2 = new int[cols, rows * 2];
     }
 
     // Gets position of mouse when mouse clicks, used to see what is being clicked on
@@ -30,7 +35,8 @@ public class GridManager : MonoBehaviour
             Manual(UtilsClass.GetMouseWorldPosition());
         }
     }
-    
+
+    //reads the Dropdown Menu and sets the cellcount at the selected value
     public void CellCounter(int val)
     {
         switch (val)
@@ -48,10 +54,11 @@ public class GridManager : MonoBehaviour
 
         Debug.Log("cellcount = " + cellcount);
     }
-    
+
     // Generates a blank board, for the manual placing of cells
     public void Generate()
     {
+        flag = 1;
         for (int i = 0; i < cols; i++)
         {
             for (int j = 0; j < rows; j++)
@@ -70,7 +77,7 @@ public class GridManager : MonoBehaviour
         {
             for (int j = 0; j < rows; j++)
             {
-                Grid[i, j] = Random.Range(0, 2);
+                Grid[i, j] = UnityEngine.Random.Range(0, 2);
                 SpawnTile(i, j, Grid[i, j]);
             }
         }
@@ -78,27 +85,34 @@ public class GridManager : MonoBehaviour
         {
             for (int j = 0; j < rows; j++)
             {
-                Grid[i, j + rows] = Grid[i, rows - j];
+                Grid[i, rows + j] = Grid[i, rows - j - 1];
                 SpawnTile(i, j + rows, Grid[i, j + rows]);
+                
             }
         }
+        rows = rows * 2;
     }
 
     // Allows for the player to manually add 'live' cells to the board
+    public int counter = 0;
     private void Manual(Vector3 worldPosition)
     {
-        int x, y;
-        GetXY(worldPosition, out x, out y);
-        if (x >= 0 && x <= 19 && y <= 19 && y >= 0)
-        { 
-            SetValue(x, y); 
-        }
-        else
+        if(flag == 1)
         {
-            string xs = x.ToString();
-            string ys = y.ToString();
-            Debug.Log("x = " + xs);
-            Debug.Log("y = " + ys);
+
+            int x, y;
+            GetXY(worldPosition, out x, out y);
+            if (x >= 0 && x <= 19 && y <= 19 && y >= 0 && counter < cellcount)
+            { 
+                SetValue(x, y);
+            }
+            else
+            {
+                string xs = x.ToString();
+                string ys = y.ToString();
+                Debug.Log("x = " + xs);
+                Debug.Log("y = " + ys);
+            }
         }
     }
 
@@ -112,18 +126,19 @@ public class GridManager : MonoBehaviour
     // Used in the manual placement of the cells on the board
     private void SetValue(int x, int y)
     {
-        if(flag == 1)
+        if (Grid[x, y] == 1)
         {
-            if (Grid[x, y] == 1)
-            {
-                Grid[x, y] = 0;
-            }
-            else
-            { 
-                Grid[x, y] = 1;
-            }
-            SpawnTile(x, y, Grid[x, y]);
+            Grid[x, y] = 0;
+            counter--;
         }
+        else
+        { 
+            Grid[x, y] = 1;
+            counter++;
+        }
+        SpawnTile(x, y, Grid[x, y]);
+        Debug.Log("counter = " + counter);
+
     }
 
     //Spawns in the tiles for the visible grid.
@@ -143,10 +158,102 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void IterationUpdate()
+    {
+        Array.Copy(Grid, Grid2, Grid.Length);
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                if (i == 0 && j == 0)
+                {
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (i == 0 && j == 19)
+                {
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (i == 0)
+                {
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (i == 19 && j == 0)
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (i == 19 && j == 19)
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (i == 19)
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (j == 0)
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+                else if (j == 19)
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
+
+                }
+                else
+                {
+                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
+                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
+                }
+
+                if (Grid[i, j] == 0 && neighbours == 3) Grid2[i, j] = 1;
+                else if (Grid[i, j] == 1 && neighbours == 2) Grid2[i, j] = 1;
+                else if (Grid[i, j] == 1 && neighbours == 3) Grid2[i, j] = 1;
+                else Grid2[i, j] = 0;
+
+                Debug.Log("x = " + i + "y = " + j + "Neighbours = " + neighbours);
+                neighbours = 0;
+            }
+        }
+        Array.Copy(Grid2, Grid, Grid.Length);
+        for (int k = 0; k < cols; k++)
+        {
+            for (int l = 0; l < rows; l++)
+            {
+                SpawnTile(k, l, Grid[k, l]);
+            }
+        }
+    }
     public void NextIteration()
     {
         Debug.Log("test");
     }
-
-
 }
