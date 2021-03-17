@@ -11,9 +11,19 @@ public class GridManager : MonoBehaviour
     private int[,] Grid2;
     private int cellSize = 1;
     private int vert, horiz, cols, rows;
-    private int flag = 0;
-    private int cellcount = 50;
-    public int neighbours = 0;
+    private int cellcount = 100;
+    private int neighbours1 = 0;
+    private int neighbours2 = 0;
+    private int[] Colour1 = new int[] { 255, 0, 0 };
+    private int[] Colour2 = new int[] {0, 0, 255};
+    private int turncheck = 0;
+    private int counter0 = 0;
+    private int counter1 = 0;
+    private int counter2 = 0;
+    private int[] target = new int[2];
+    private int create = 0;
+    private int createcount = 0;
+
 
 
     // Start is called before the first frame update
@@ -41,30 +51,101 @@ public class GridManager : MonoBehaviour
     {
         switch (val)
         {
+            //sets the number of cells for each player at 100, if that is the number selected on the dropdown menu
             case 0:
-                cellcount = 50;
-                break;
-            case 1:
-                cellcount = 75;
-                break;
-            case 2:
                 cellcount = 100;
+                break;
+            //sets the number of cells for each player at 130, if that is the number selected on the dropdown menu
+            case 1:
+                cellcount = 130;
+                break;
+            //sets the number of cells for each player at 200, if that is the number selected on the dropdown menu
+            case 2:
+                cellcount = 200;
                 break;
         }
 
         Debug.Log("cellcount = " + cellcount);
     }
 
+    //reads the Dropdown Menu for the colour of Player1 and sets the colour value
+    public void Colourselect1(int val)
+    {
+        switch (val)
+        {
+            //sets the colour of player1 to Red, if that is the colour selected on the dropdown menu
+            case 0:
+                Colour1[0] = 255;
+                Colour1[1] = 0;
+                Colour1[2] = 0;
+                Debug.Log("0");
+                break;
+            //sets the colour of player1 to Orange, if that is the colour selected on the dropdown menu
+            case 1:
+                Colour1[0] = 255;
+                Colour1[1] = 128;
+                Colour1[2] = 0;
+                Debug.Log("1");
+                break;
+            //sets the colour of player1 to Yellow, if that is the colour selected on the dropdown menu
+            case 2:
+                Colour1[0] = 255;
+                Colour1[1] = 255;
+                Colour1[2] = 0;
+                Debug.Log("2");
+                break;
+        }
+        Debug.Log("RGB1 = " + Colour1[0] + Colour1[1] + Colour1[2]);
+    }
+
+    //reads the Dropdown Menu for the colour of Player and sets the colour value
+    public void Colourselect2(int val)
+    {
+        switch (val)
+        {
+            //sets the colour of player2 to Blue, if that is the colour selected on the dropdown menu
+            case 0:
+                Colour2[0] = 0;
+                Colour2[1] = 0;
+                Colour2[2] = 255;
+                Debug.Log("0");
+                break;
+            //sets the colour of player2 to Dark Blue, if that is the colour selected on the dropdown menu
+            case 1:
+                Colour2[0] = 0;
+                Colour2[1] = 0;
+                Colour2[2] = 102;
+                Debug.Log("1");
+                break;
+            //sets the colour of player2 to Green, if that is the colour selected on the dropdown menu
+            case 2:
+                Colour2[0] = 0;
+                Colour2[1] = 255;
+                Colour2[2] = 0;
+                Debug.Log("2");
+                break;
+        }
+        Debug.Log("RGB2 = " + Colour2[0] + Colour2[1] + Colour2[2]);
+    }
+
     // Generates a blank board, for the manual placing of cells
     public void Generate()
     {
-        flag = 1;
-        for (int i = 0; i < cols; i++)
-        {
-            for (int j = 0; j < rows; j++)
+        //ensures that no board has been generated already
+        if (turncheck == 0)
+        {   
+            //runs through all columns in the grid
+            for (int i = 0; i < cols; i++)
             {
-                Grid[i, j] = 0;
-                SpawnTile(i, j, Grid[i, j]);
+                //runs through all rows in the grid
+                for (int j = 0; j < rows; j++)
+                {
+                    //generates a blank cell in the given coordinates
+                    Grid[i, j] = 0;
+                    SpawnTile(i, j, Grid[i, j]);
+                    //sets the turncheck variable so as to allow the manual placement of cells on the board
+                    turncheck = 3;
+                }
             }
         }
     }
@@ -72,48 +153,209 @@ public class GridManager : MonoBehaviour
     // Generates a random but symmetrical board for players to use
     public void Randomise()
     {
-        rows = rows / 2;
-        for (int i = 0; i < cols; i++)
+        //ensures that no board has been generated already
+        if (turncheck == 0)
         {
-            for (int j = 0; j < rows; j++)
+            //sets the turencheck variable to the turn of player1, signalling the board is ready to play
+            turncheck = 1;
+            //ensures that only half of the grid is generated
+            rows = rows / 2;
+            //runs through all columns in the grid
+            for (int i = 0; i < cols; i++)
             {
-                Grid[i, j] = UnityEngine.Random.Range(0, 2);
-                SpawnTile(i, j, Grid[i, j]);
+                //runs through all rows in the grid
+                for (int j = 0; j < rows; j++)
+                {
+                    //runs a while loop, to ensure that each cell has a generated value
+                    int temp = 1;
+                    while (temp == 1)
+                    {
+                        //randomises a value for each cell
+                        Grid[i, j] = UnityEngine.Random.Range(0, 4);
+                        //ensures that there are the correct number of each values in the entire grid
+                        //the value of '0' consists of the randomly generated values 0 and 1, as it needs to be twice as likely to come up as the other values
+                        switch (Grid[i, j])
+                        {
+                            case 0:
+                                counter0++;
+                                if (counter0 > (400 - cellcount*2))
+                                {
+                                    temp = 1;
+                                    counter0--;
+                                }
+                                else
+                                {
+                                    temp = 0;
+                                    Grid[i, j] = 0;
+                                }
+                                break;
+                            case 1:
+                                counter0++;
+                                if (counter0 > (400 - cellcount*2))
+                                {
+                                    temp = 1;
+                                    counter0--;
+                                }
+                                else
+                                {
+                                    temp = 0;
+                                    Grid[i, j] = 0;
+                                }
+                                break;
+                            case 2:
+                                counter1++;
+                                if (counter1 > cellcount/2)
+                                {
+                                    temp = 1;
+                                    counter1--;
+                                }
+                                else
+                                {
+                                    temp = 0;
+                                    Grid[i, j] = 1;
+                                }
+                                break;
+                            case 3:
+                                counter2++;
+                                if (counter2 > cellcount/2)
+                                {
+                                    temp = 1;
+                                    counter2--;
+                                }
+                                else
+                                {
+                                    temp = 0;
+                                    Grid[i, j] = 2;
+                                }
+                                break;
+                        }
+                    }
+
+                    SpawnTile(i, j, Grid[i, j]);
+                }
             }
         }
+        //copies the generated half of the grid, ensuring that it is symmetrical
         for (int i = 0; i < cols; i++)
         {
             for (int j = 0; j < rows; j++)
-            {
-                Grid[i, rows + j] = Grid[i, rows - j - 1];
-                SpawnTile(i, j + rows, Grid[i, j + rows]);
+            { 
+                switch (Grid[i, rows - j - 1])
+                {
+                    case 0:
+                        Grid[i, rows + j] = 0;
+                        break;
+                    case 1:
+                        Grid[i, rows + j] = 2;
+                        break;
+                    case 2:
+                        Grid[i, rows + j] = 1;
+                        break;
+                }
+                    SpawnTile(i, j + rows, Grid[i, j + rows]);
                 
             }
         }
         rows = rows * 2;
     }
 
-    // Allows for the player to manually add 'live' cells to the board
-    public int counter = 0;
+    // Allows for the player to manually add 'live' cells to the board & to interact with the board using the 'moves' of GOLAD.
     private void Manual(Vector3 worldPosition)
     {
-        if(flag == 1)
+        if(create == 0)
         {
-
-            int x, y;
-            GetXY(worldPosition, out x, out y);
-            if (x >= 0 && x <= 19 && y <= 19 && y >= 0 && counter < cellcount)
-            { 
-                SetValue(x, y);
-            }
-            else
+            if (turncheck == 3)
             {
-                string xs = x.ToString();
-                string ys = y.ToString();
-                Debug.Log("x = " + xs);
-                Debug.Log("y = " + ys);
+
+                    int x, y;
+                    GetXY(worldPosition, out x, out y);
+                    if (x >= 0 && x <= 19 && y <= 19 && y >= 0 && ((counter1 < cellcount && marker == 1) ^ (counter2 < cellcount && marker == 2)))
+                    {
+                        SetValue(x, y);
+                    }
+                    else if (counter1 == cellcount && counter2 == cellcount)
+                    {
+                        turncheck = 1;
+                    }
+                    else
+                    {
+                        string xs = x.ToString();
+                        string ys = y.ToString();
+                        Debug.Log("x = " + xs);
+                        Debug.Log("y = " + ys);
+
+                    }
+            }
+            else if (turncheck == 1)
+            {
+                int x, y;
+                GetXY(worldPosition, out x, out y);
+                if (x >= 0 && x <= 19 && y <= 19 && y >= 0)
+                {
+                    if (Grid[x, y] == 0)
+                    {
+                        target[0] = x;
+                        target[1] = y;
+                        create = 1;
+                    }
+                    else
+                    {
+                        Grid[x, y] = 0;
+                        SpawnTile(x, y, Grid[x, y]);
+                        turncheck = 2;
+                    }
+                }
+            }
+            else if (turncheck == 2)
+            {
+                int x, y;
+                GetXY(worldPosition, out x, out y);
+                if (Grid[x, y] == 0)
+                {
+                    target[0] = x;
+                    target[1] = y;
+                    create = 1;
+                }
+                else
+                {
+                    Grid[x, y] = 0;
+                    SpawnTile(x, y, Grid[x, y]);
+                    turncheck = 1;
+                }
             }
         }
+        else
+        {
+            int x, y;
+            GetXY(worldPosition, out x, out y);
+            if (x >= 0 && x <= 19 && y <= 19 && y >= 0)
+            {
+                if(Grid[x, y] == turncheck)
+                {
+                    Grid[x, y] = 0;
+                    createcount++;
+                }
+            }
+            if(createcount == 2)
+            {
+                create = 0;
+                x = target[0];
+                y = target[1];
+                Grid[x, y] = turncheck;
+
+                switch(turncheck)
+                {
+                    case 1:
+                        turncheck++;
+                        break;
+                    case 2:
+                        turncheck--;
+                        break;
+                }
+                
+            }
+        }
+        
     }
 
     // Gets the Position of the mouse in relation to the grid
@@ -124,21 +366,29 @@ public class GridManager : MonoBehaviour
     }
 
     // Used in the manual placement of the cells on the board
+    int marker = 1;
     private void SetValue(int x, int y)
     {
-        if (Grid[x, y] == 1)
+        if (marker == 1)
         {
-            Grid[x, y] = 0;
-            counter--;
+            if(Grid[x,y] == 0)
+            {
+                Grid[x, y] = 1;
+                counter1++;
+                SpawnTile(x, y, Grid[x, y]);
+                marker = 2;
+            }
         }
-        else
-        { 
-            Grid[x, y] = 1;
-            counter++;
+        if (marker == 2)
+        {
+            if (Grid[x, y] == 0)
+            {
+                Grid[x, y] = 2;
+                counter2++;
+                SpawnTile(x, y, Grid[x, y]);
+                marker = 1;
+            }
         }
-        SpawnTile(x, y, Grid[x, y]);
-        Debug.Log("counter = " + counter);
-
     }
 
     //Spawns in the tiles for the visible grid.
@@ -152,108 +402,162 @@ public class GridManager : MonoBehaviour
         {
             s.color = new Color(255, 255, 255);
         }
-        if (value == 1)
+        else if (value == 1)
         {
-            s.color = new Color(0, 0, 0);
+            s.color = new Color(Colour1[0], Colour1[1], Colour1[2]);
+        }
+        else
+        {
+            s.color = new Color(Colour2[0], Colour2[1], Colour2[2]);
         }
     }
 
+    //Applies the rules of the Game of Life to the board when the 'Next Iteration' Button is clicked.
     public void IterationUpdate()
     {
-        Array.Copy(Grid, Grid2, Grid.Length);
-        for (int i = 0; i < cols; i++)
+        if(counter1 == cellcount && counter2 == cellcount && counter0 == cellcount*2 && turncheck != 0)
         {
-            for (int j = 0; j < rows; j++)
+            Array.Copy(Grid, Grid2, Grid.Length);
+            for (int i = 0; i < cols; i++)
             {
-                if (i == 0 && j == 0)
+                for (int j = 0; j < rows; j++)
                 {
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (i == 0 && j == 19)
-                {
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (i == 0)
-                {
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (i == 19 && j == 0)
-                {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (i == 19 && j == 19)
-                {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (i == 19)
-                {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (j == 0)
-                {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
-                }
-                else if (j == 19)
-                {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
+                    if (i == 0 && j == 0)
+                    {
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j + 1] == 2) neighbours2++;
+                    }
+                    else if (i == 0 && j == 19)
+                    {
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j - 1] == 2) neighbours2++;
+                    }
+                    else if (i == 0)
+                    {
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j + 1] == 2) neighbours2++;
+                    }
+                    else if (i == 19 && j == 0)
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j + 1] == 2) neighbours2++;
+                    }
+                    else if (i == 19 && j == 19)
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j - 1] == 2) neighbours2++;
+                    }
+                    else if (i == 19)
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j - 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j + 1] == 2) neighbours2++;
+                    }
+                    else if (j == 0)
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j + 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j + 1] == 2) neighbours2++;
+                    }
+                    else if (j == 19)
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i - 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i - 1, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j - 1] == 2) neighbours2++;
 
+                    }
+                    else
+                    {
+                        if (Grid[i - 1, j] == 1) neighbours1++;
+                        if (Grid[i, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j] == 1) neighbours1++;
+                        if (Grid[i, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i + 1, j - 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j + 1] == 1) neighbours1++;
+                        if (Grid[i - 1, j] == 2) neighbours2++;
+                        if (Grid[i, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j] == 2) neighbours2++;
+                        if (Grid[i, j + 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j - 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j + 1] == 2) neighbours2++;
+                        if (Grid[i + 1, j - 1] == 2) neighbours2++;
+                        if (Grid[i - 1, j + 1] == 2) neighbours2++;
+                    }
+
+                    if (Grid[i, j] == 0 && (neighbours1 + neighbours2) == 3)
+                    {
+                        if(neighbours1 > neighbours2)
+                        {
+                            Grid2[i, j] = 1;
+                        }
+                        else
+                        {
+                            Grid2[i, j] = 2;
+                        }
+                    }
+                    else if (Grid[i, j] == (1 ^ 2) && (neighbours1 + neighbours2) == 2) ;
+                    else if (Grid[i, j] == (1 ^ 2) && (neighbours1 + neighbours2) == 3) ;
+                    else Grid2[i, j] = 0;
+
+                    Debug.Log("x = " + i + "y = " + j + "Neighbours = " + neighbours1);
+                    neighbours1 = 0;
                 }
-                else
+            }
+            Array.Copy(Grid2, Grid, Grid.Length);
+            for (int k = 0; k < cols; k++)
+            {
+                for (int l = 0; l < rows; l++)
                 {
-                    if (Grid[i - 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j] == 1) neighbours = neighbours + 1;
-                    if (Grid[i, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j + 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i + 1, j - 1] == 1) neighbours = neighbours + 1;
-                    if (Grid[i - 1, j + 1] == 1) neighbours = neighbours + 1;
+                    SpawnTile(k, l, Grid[k, l]);
                 }
-
-                if (Grid[i, j] == 0 && neighbours == 3) Grid2[i, j] = 1;
-                else if (Grid[i, j] == 1 && neighbours == 2) Grid2[i, j] = 1;
-                else if (Grid[i, j] == 1 && neighbours == 3) Grid2[i, j] = 1;
-                else Grid2[i, j] = 0;
-
-                Debug.Log("x = " + i + "y = " + j + "Neighbours = " + neighbours);
-                neighbours = 0;
             }
         }
-        Array.Copy(Grid2, Grid, Grid.Length);
-        for (int k = 0; k < cols; k++)
-        {
-            for (int l = 0; l < rows; l++)
-            {
-                SpawnTile(k, l, Grid[k, l]);
-            }
-        }
-    }
-    public void NextIteration()
-    {
-        Debug.Log("test");
     }
 }
